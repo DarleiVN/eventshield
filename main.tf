@@ -351,3 +351,53 @@ resource "aws_iam_role_policy_attachment" "etl_lambda_attach" {
   role       = aws_iam_role.etl_lambda_role.name
   policy_arn = aws_iam_policy.etl_lambda_policy.arn
 }
+# ==========================================
+# 5. Empacotar o código Python do ETL
+# ==========================================
+data "archive_file" "etl_lambda_zip" {
+  type        = "zip"
+  source_file = "etl_lambda.py"
+  output_path = "etl_lambda.zip"
+}
+
+# ==========================================
+# 6. Criar a Função Lambda (O Robô ETL)
+# ==========================================
+resource "aws_lambda_function" "etl_lambda" {
+  filename         = "etl_lambda.zip"
+  function_name    = "eventshield_etl_processor"
+  role             = aws_iam_role.etl_lambda_role.arn
+  handler          = "etl_lambda.lambda_handler"
+  source_code_hash = data.archive_file.etl_lambda_zip.output_base64sha256
+  runtime          = "python3.9"
+
+  environment {
+    variables = {
+      TABLE_NAME  = aws_dynamodb_table.security_events_table.name
+      BUCKET_NAME = aws_s3_bucket.data_lake.bucket
+    }
+  }
+}
+
+# ==========================================
+# 7. Agendamento Automático (EventBridge)
+# ==========================================
+resource "aws_cloudwatch_event_rule" "daily_etl_schedule" {
+  name                = "daily_etl_schedule"
+  description         = "Aciona o ETL todos os dias a meia-noite"
+  schedule_expression = "cron(0 0 * * ? *)" # Todo dia à meia-noite (UTC)
+}
+
+resource "aws_cloudwatch_event_target" "etl_lambda_target" {
+  rule      = aws_cloudwatch_event_rule.daily_etl_schedule.name
+  target_id = "etl_lambda"
+  arn       = aws_lambda_function.etl_lambda.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.etl_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.daily_etl_schedule.arn
+}
