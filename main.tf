@@ -401,3 +401,15 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.daily_etl_schedule.arn
 }
+# ==========================================
+# 8. Bucket S3 para guardar o resultado das consultas SQL do Athena
+# ==========================================
+resource "aws_s3_bucket" "athena_results" {
+  bucket = "eventshield-athena-results-darlei-2026" # Se der erro de nome, adicione números aqui
+}
+
+# 9. Banco de Dados Lógico no Athena
+resource "aws_athena_database" "security_analytics_db" {
+  name   = "eventshield_analytics"
+  bucket = aws_s3_bucket.athena_results.bucket
+}
