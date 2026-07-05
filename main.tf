@@ -5,11 +5,17 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  # O backend deve ficar DENTRO do bloco terraform
+  backend "s3" {
+    bucket = "eventshield-state-2026-us-east-1"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
-# Defina a mesma região que você configurou no seu AWS CLI (Fase 1)
 provider "aws" {
-  region = "us-east-1" 
+  region = "us-east-1"
 }
 
 # Fila SQS para retenção dos eventos do produtor
