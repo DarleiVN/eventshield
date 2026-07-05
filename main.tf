@@ -287,3 +287,67 @@ output "api_url" {
   value       = "${aws_api_gateway_stage.api_stage.invoke_url}/${aws_api_gateway_resource.alerts_resource.path_part}"
   description = "URL publica da API Gateway"
 }
+# ==========================================
+# FASE 4: DATA LAKE & ETL (Analytics)
+# ==========================================
+
+# 1. Bucket S3 para o Data Lake (Armazenamento de longo prazo)
+resource "aws_s3_bucket" "data_lake" {
+  bucket = "eventshield-datalake-darlei-2026" # Se der erro de nome, adicione números aleatórios aqui
+}
+
+# 2. Identidade (Role) para o Robô de ETL
+resource "aws_iam_role" "etl_lambda_role" {
+  name = "eventshield_etl_lambda_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+# 3. Permissões do Robô de ETL (Ler DynamoDB e Escrever no S3)
+resource "aws_iam_policy" "etl_lambda_policy" {
+  name        = "eventshield_etl_policy"
+  description = "Permite a Lambda ETL ler do DynamoDB e gravar no S3 Data Lake"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        # Permissão para extrair os dados da tabela
+        Effect = "Allow"
+        Action = ["dynamodb:Scan"]
+        Resource = aws_dynamodb_table.security_events_table.arn
+      },
+      {
+        # Permissão para salvar os arquivos gerados no Data Lake
+        Effect = "Allow"
+        Action = ["s3:PutObject"]
+        Resource = "${aws_s3_bucket.data_lake.arn}/*"
+      },
+      {
+        # Permissão para gerar logs no CloudWatch
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# 4. Anexar as permissões à identidade do Robô
+resource "aws_iam_role_policy_attachment" "etl_lambda_attach" {
+  role       = aws_iam_role.etl_lambda_role.name
+  policy_arn = aws_iam_policy.etl_lambda_policy.arn
+}
