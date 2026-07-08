@@ -14,9 +14,7 @@ BUCKET_NAME = os.environ['BUCKET_NAME']
 def lambda_handler(event, context):
     table = dynamodb.Table(TABLE_NAME)
     
-    # ==========================================
-    # 1. EXTRAÇÃO (Extract)
-    # ==========================================
+    
     # O método 'scan' varre e puxa todos os dados da tabela no DynamoDB
     response = table.scan()
     items = response.get('Items', [])
@@ -25,19 +23,15 @@ def lambda_handler(event, context):
         print("Nenhum dado novo para exportar.")
         return {"statusCode": 200, "body": "Nenhum dado encontrado."}
 
-    # ==========================================
-    # 2. TRANSFORMAÇÃO (Transform)
-    # ==========================================
-    # Para o Data Lake e o AWS Athena, o melhor formato é o JSON Lines (JSONL).
-    # Vamos pegar cada registro e transformar em uma linha de texto.
+  
+    
+    # pega cada registro e transformar em uma linha de texto.
     jsonl_data = ""
     for item in items:
         jsonl_data += json.dumps(item) + "\n"
 
-    # ==========================================
-    # 3. CARGA (Load)
-    # ==========================================
-    # Criamos um caminho organizado por data no S3 (ex: 2026/07/05/dados.jsonl)
+  
+    # Cria um caminho organizado por data no S3 (ex: 2026/07/05/dados.jsonl)
     hoje = datetime.now()
     caminho_s3 = f"dados-seguranca/{hoje.year}/{hoje.month:02d}/{hoje.day:02d}/extracao_{hoje.strftime('%H%M%S')}.jsonl"
     

@@ -1,7 +1,7 @@
 import json
 import boto3
 import os
-import urllib.request  # Biblioteca nativa do Python para chamadas HTTP sem dependências
+import urllib.request  
 
 # Inicializa os clientes fora do handler para reutilização de conexões
 dynamodb = boto3.resource('dynamodb')
@@ -51,7 +51,7 @@ def lambda_handler(event, context):
         
         # 2. Executa o enriquecimento de dados geográficos
         geo_information = get_ip_location(source_ip)
-        payload.update(geo_information)  # Funde os novos campos diretamente no dicionário original
+        payload.update(geo_information)  
         
         # 3. Grava o histórico de auditoria já enriquecido no DynamoDB
         table.put_item(Item=payload)

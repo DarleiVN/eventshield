@@ -32,7 +32,7 @@ resource "aws_sqs_queue" "security_events_queue" {
 # Persistência: Tabela DynamoDB para armazenar o histórico de eventos
 resource "aws_dynamodb_table" "security_events_table" {
   name         = "eventshield-alerts-history"
-  billing_mode = "PAY_PER_REQUEST" # Mantém 100% no Free Tier, pagando só se usar
+  billing_mode = "PAY_PER_REQUEST" 
   hash_key     = "event_id"        # Chave primária da tabela
 
   attribute {
