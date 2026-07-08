@@ -7,7 +7,7 @@
 
 O **EventShield** é um projeto pessoal de engenharia de dados de segurança, 100% *Serverless* na AWS, construído para estudar na prática como lidar com ingestão de logs de ameaças (como tentativas de injeção de SQL ou força bruta). A ideia foi simular um pipeline ponta a ponta: desde o desacoplamento da ingestão, passando por enriquecimento de geolocalização em tempo real, armazenamento transacional e alertas, até a estruturação de um Data Lake simples para consultas SQL.
 
-Ainda é um projeto em evolução construído com foco em aprender arquiteturas serverless e boas práticas de IaC, não uma solução pronta para produção em larga escala.
+Ainda é um projeto em evolução — construído com foco em aprender arquiteturas serverless e boas práticas de IaC, não uma solução pronta para produção em larga escala.
 
 ---
 
@@ -69,6 +69,13 @@ graph TD
 
 * **Amazon SNS:** Quando a função de processamento identifica um evento com severidade `CRITICAL`, um gatilho dispara uma notificação por e-mail, incluindo os dados de geolocalização do evento para ajudar numa análise manual mais rápida.
 
+Exemplo de e-mails de alerta recebidos durante os testes de simulação:
+
+<p align="center">
+  <img src="Imagens\alerta_email1.png" alt="Exemplo de e-mail de alerta 1" width="45%">
+  <img src="Imagens/alerta_email2.png" alt="Exemplo de e-mail de alerta 2" width="45%">
+</p>
+
 ### 4. Pipeline de ETL & Data Lake (Camada Analítica)
 
 * **Amazon EventBridge & ETL Lambda:** Todos os dias, à meia-noite, um gatilho cron acorda a Lambda de ETL. Ela varre as novas linhas do DynamoDB, transforma a estrutura de dados NoSQL para o formato otimizado **JSON Lines (JSONL)** e salva no Amazon S3.
@@ -77,6 +84,12 @@ graph TD
 ### 5. Serverless Analytics
 
 * **Amazon Athena:** Mapeado em cima do S3 Data Lake, permite consultar os dados históricos e gerar relatórios agregados usando **SQL** padrão, sem precisar manter um banco de dados rodando o tempo todo.
+
+Resultado de uma consulta SQL executada no painel do Athena:
+
+<p align="center">
+  <img src="imagens/amazon_athena.png" alt="Consulta SQL no Amazon Athena" width="80%">
+</p>
 
 ---
 
@@ -87,6 +100,12 @@ graph TD
 * **Infraestrutura como Código (IaC):** Terraform (Gerenciamento de estado remoto seguro no S3 + Lock via DynamoDB)
 * **CI/CD:** GitHub Actions (Automação completa de testes e implantação)
 
+Execução do pipeline de CI/CD no GitHub Actions:
+
+<p align="center">
+  <img src="imagens/workflow_git_actions.png" alt="Workflow do GitHub Actions" width="80%">
+</p>
+
 ---
 
 ## 🚀 Como Executar e Simular
@@ -95,6 +114,11 @@ graph TD
 
 * Terraform instalado
 * AWS CLI configurado
+* Ambiente de terminal Linux (o desenvolvimento e os testes foram feitos via WSL no Windows)
+
+<p align="center">
+  <img src="imagens/wsl.png" alt="Ambiente de desenvolvimento no WSL" width="80%">
+</p>
 
 ### 1. Implantação da Infraestrutura
 
@@ -155,6 +179,7 @@ ORDER BY Total_Detectado DESC;
 ```
 .
 ├── .github/workflows/       # Pipelines automatizados de CI/CD (GitHub Actions)
+├── imagens/                 # Screenshots usados na documentação (README)
 ├── src/                     # Código-fonte das aplicações
 │   ├── processor/           # Lambda de processamento e geolocalização (Python)
 │   └── etl/                 # Lambda de extração e carga para o Data Lake (Python)
