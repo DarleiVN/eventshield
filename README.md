@@ -88,7 +88,7 @@ Exemplo de e-mails de alerta recebidos durante os testes de simulação:
 Resultado de uma consulta SQL executada no painel do Athena:
 
 <p align="center">
-  <img src="imagens/amazon_athena.png" alt="Consulta SQL no Amazon Athena" width="80%">
+  <img src="Imagens/amazon_athena.png" alt="Consulta SQL no Amazon Athena" width="80%">
 </p>
 
 ---
@@ -103,7 +103,7 @@ Resultado de uma consulta SQL executada no painel do Athena:
 Execução do pipeline de CI/CD no GitHub Actions:
 
 <p align="center">
-  <img src="imagens/workflow_git_actions.png" alt="Workflow do GitHub Actions" width="80%">
+  <img src="Imagens/workflow_git_actions.png" alt="Workflow do GitHub Actions" width="80%">
 </p>
 
 ---
@@ -117,7 +117,7 @@ Execução do pipeline de CI/CD no GitHub Actions:
 * Ambiente de terminal Linux (o desenvolvimento e os testes foram feitos via WSL no Windows)
 
 <p align="center">
-  <img src="imagens/wsl.png" alt="Ambiente de desenvolvimento no WSL" width="80%">
+  <img src="Imagens/wsl.png" alt="Ambiente de desenvolvimento no WSL" width="80%">
 </p>
 
 ### 1. Implantação da Infraestrutura
